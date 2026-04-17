@@ -10,15 +10,15 @@
 
 ## Presentation du projet
 
-**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) concevoir pour les utilisateurs Linux experimentes qui souhaitent deployer **NixOS 24.11** de maniere automatisee mais parfaitement controlee. Contrairement a l'installeur graphique officiel, cet outil offre une interface en ligne de commande elegante et securisee pour guide l'utilisateur a travers toutes les etapes critiques de l'installation.
+**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) conçu pour les utilisateurs Linux experimentés qui souhaitent déployer **NixOS 24.11** de manière automatisée mais parfaitement contrôlée. Contrairement à l'installeur graphique officiel, cet outil offre une interface en ligne de commande élégante et sécurisée pour guider l'utilisateur à travers toutes les étapes critiques de l'installation.
 
 ### Pourquoi utiliser cet installeur ?
 
-L'installeur officiel NixOS, bien que excellent, peut sembler complexe pour les utilisateurs souhaitant :
-- **Un partitionnement declaratif et reproductible** via `disko` - Plus besoin de manuellement creer des partitions avec `fdisk` ou `parted`
-- **Un chiffrement moderne** avec LUKS2 et argon2id - Protegez vos donnees avec un standard industriel
-- **Une configuration reseau personnalisee** - Choose between NetworkManager (desktop) or systemd-networkd (serveur)
-- **Une totale transparence** - Le script etant ouvert, vous pouvez verifiez chaque operation effectuee
+L'installeur officiel NixOS, bien qu'excellent, peut sembler complexe pour les utilisateurs souhaitant :
+- **Un partitionnement déclaratif et reproductible** via `disko` - Plus besoin de manuellement créer des partitions avec `fdisk` ou `parted`
+- **Un chiffrement moderne** avec LUKS2 et argon2id - Protégez vos données avec un standard industriel
+- **Une configuration réseau personnalisable** - Choix entre NetworkManager (desktop) ou systemd-networkd (serveur)
+- **Une totale transparence** - Le script étant ouvert, vous pouvez vérifiez chaque opération effectuée
 
 ---
 
@@ -157,6 +157,38 @@ L'installeur suit un flux sequentiel strict en 9 etapes :
 ---
 
 ## Prerequisites systeme
+
+### Systeme hote pour le developpement
+
+Pour **telecharger**, **modifier** et **contribuer** au projet :
+
+| OS | Support | Notes |
+|-----|---------|-------|
+| **Linux** | ✅ Complet | Toutes les commandes fonctionne |
+| **macOS** | ✅ Complet | Requires Nix installe |
+| **Windows (WSL)** | ✅ Avec WSL2 | Recomend Ubuntu/WSL |
+| **Windows (Git)** | Partiel | Git BASH ou GUI uniquement |
+
+**Sans Nix installe** (macOS/Windows), vous pouvez :
+- Telecharger les sources via GitHub (bouton "Code" > "Download ZIP")
+- Editer les fichiers avec un editeur de texte
+- Soumettre des changements via GitHub GUI
+
+### OS cible pour l'installation NixOS
+
+L'installeur s'execute depuis le **Live ISO NixOS** - Ce nest pas un script portable :
+
+| Etape | Environnement |
+|-------|-------------|
+| Lancer `installer.sh` | **Live ISO NixOS 24.11** (minimal ou graphical) |
+| Partitionnement | disko (execute depuis le live) |
+| Installation | `nixos-install` (execute depuis le live) |
+| **Redemarrage** → | **Votre nouveau systeme NixOS** |
+
+Cela signifie que :
+- Vous ne pouvez pas lancer l'installeur depuis macOS ou Windows directement
+- Vous devez d'abord booter sur le Live ISO NixOS
+- L'ISO etant auto-contenant,Aucune distribution pre-install nest requise
 
 ### Configuration materielle requise
 
