@@ -164,7 +164,7 @@ Pour **telecharger**, **modifier** et **contribuer** au projet :
 
 | OS | Support | Notes |
 |-----|---------|-------|
-| **Linux** | ✅ Complet | Toutes les commandes fonctionne |
+| **Linux** | ✅ Complet | Toutes les commandes fonctionnent |
 | **macOS** | ✅ Complet | Requires Nix installe |
 | **Windows (WSL)** | ✅ Avec WSL2 | Recomend Ubuntu/WSL |
 | **Windows (Git)** | Partiel | Git BASH ou GUI uniquement |
