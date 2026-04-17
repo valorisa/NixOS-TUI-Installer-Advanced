@@ -1,7 +1,7 @@
 # nixos-tui-installer-advanced
 
-[![CI Checks](https://github.com/{{USERNAME}}/nixos-tui-installer-advanced/actions/workflows/check.yml/badge.svg)](https://github.com/{{USERNAME}}/nixos-tui-installer-advanced/actions/workflows/check.yml)
-[![Latest Release](https://img.shields.io/github/v/release/{{USERNAME}}/nixos-tui-installer-advanced?include_prereleases&label=latest%20release)](https://github.com/{{USERNAME}}/nixos-tui-installer-advanced/releases)
+[![CI Checks](https://github.com/valorisa/nixos-tui-installer-advanced/actions/workflows/check.yml/badge.svg)](https://github.com/valorisa/nixos-tui-installer-advanced/actions/workflows/check.yml)
+[![Latest Release](https://img.shields.io/github/v/release/valorisa/nixos-tui-installer-advanced?include_prereleases&label=latest%20release)](https://github.com/valorisa/nixos-tui-installer-advanced/releases)
 [![NixOS 25.11](https://img.shields.io/badge/NixOS-25.11-5277C3.svg?logo=nixos&logoColor=white)](https://nixos.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![UEFI only](https://img.shields.io/badge/boot-UEFI%20only-orange)](#prérequis-matériels-et-logiciels)
@@ -129,7 +129,7 @@ Cette méthode vous donne accès aux toutes dernières modifications, mais peut 
 
 ```bash
 # 1. Cloner le dépôt
-git clone https://github.com/{{USERNAME}}/nixos-tui-installer-advanced.git
+git clone https://github.com/valorisa/nixos-tui-installer-advanced.git
 cd nixos-tui-installer-advanced
 
 # 2. Entrer dans l'environnement de développement Nix
@@ -146,7 +146,7 @@ Les releases sont empaquetées et signées (checksums). C'est la méthode recomm
 
 ```bash
 # 1. Télécharger et extraire la dernière release
-curl -L https://github.com/{{USERNAME}}/nixos-tui-installer-advanced/releases/latest/download/nixos-tui-installer-advanced-v{{VERSION}}.tar.gz | tar xz
+curl -L https://github.com/valorisa/nixos-tui-installer-advanced/releases/latest/download/nixos-tui-installer-advanced-v{{VERSION}}.tar.gz | tar xz
 cd nixos-tui-installer-advanced-*/
 
 # 2. Vérifier l'intégrité de l'archive (optionnel mais conseillé)
@@ -406,7 +406,7 @@ Les contributions sont les bienvenues ! Voici comment configurer votre environne
 ### Préparer l'environnement
 
 ```bash
-git clone https://github.com/{{USERNAME}}/nixos-tui-installer-advanced.git
+git clone https://github.com/valorisa/nixos-tui-installer-advanced.git
 cd nixos-tui-installer-advanced
 nix develop
 ```
@@ -466,10 +466,7 @@ Ce projet est distribué sous licence MIT. Voir le fichier [LICENSE](LICENSE) po
 
 ---
 
-**Auteur** : valorisa 
-**Dépôt** : [https://github.com/{{USERNAME}}/nixos-tui-installer-advanced](https://github.com/{{USERNAME}}/nixos-tui-installer-advanced)  
+**Auteur** : valorisa  
+**Dépôt** : [https://github.com/valorisa/nixos-tui-installer-advanced](https://github.com/valorisa/nixos-tui-installer-advanced)  
 **Dernière mise à jour** : 17 avril 2026
 
-```
-
-Cette version très détaillée couvre tous les aspects du projet, depuis la philosophie jusqu'aux instructions de dépannage, en passant par une description exhaustive de l'interface et des mécanismes internes. Elle devrait satisfaire les utilisateurs avancés souhaitant comprendre pleinement ce qu'ils installent.
