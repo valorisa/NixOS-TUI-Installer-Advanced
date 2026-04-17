@@ -1,55 +1,76 @@
 #!/usr/bin/env bash
-# lib/tui.sh — Abstractions TUI pour dialog/whiptail
+# lib/tui.sh — Abstraction pour dialog/whiptail
+# Fournit une interface uniforme pour les boîtes de dialogue.
+
 set -euo pipefail
 
-declare -g DIALOG_CMD=""
+# Détection du moteur TUI disponible
+TUI_CMD=""
+if command -v dialog &>/dev/null; then
+    TUI_CMD="dialog"
+elif command -v whiptail &>/dev/null; then
+    TUI_CMD="whiptail"
+else
+    echo "Erreur : ni dialog ni whiptail n'est installé." >&2
+    exit 1
+fi
 
-lib::tui::init() {
-  if command -v dialog &>/dev/null; then DIALOG_CMD="dialog"
-  elif command -v whiptail &>/dev/null; then DIALOG_CMD="whiptail"
-  else return 1; fi
-  export DIALOGOPTS="--colors --backtitle 'NixOS TUI Installer'"
-  return 0
+# Fonctions génériques
+tui_info() {
+    local msg="$1"
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        dialog --infobox "$msg" 5 70
+    else
+        whiptail --msgbox "$msg" 8 70
+    fi
 }
 
-lib::tui::info() {
-  local msg="${1:-}"; ${DIALOG_CMD} --msgbox "${msg}" 10 60 2>/dev/null || true; return 0
+tui_error() {
+    local msg="$1"
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        dialog --msgbox "ERREUR : $msg" 8 70
+    else
+        whiptail --msgbox "ERREUR : $msg" 8 70
+    fi
 }
 
-lib::tui::error() {
-  local msg="${1:-Erreur inconnue}"
-  ${DIALOG_CMD} --msgbox "Erreur: ${msg}" 10 60 2>/dev/null || echo "Erreur: ${msg}" >&2
-  return 1
+tui_menu() {
+    local title="${1:-}" text="${2:-}" height="${3:-15}" width="${4:-60}" menu_height="${5:-5}"
+    shift 5
+    # Les arguments restants sont les paires tag/item
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        # shellcheck disable=SC2068 # On veut que les arguments soient découpés
+        dialog --clear --title "$title" --menu "$text" "$height" "$width" "$menu_height" $@ 2>&1 >/dev/tty
+    else
+        # shellcheck disable=SC2068
+        whiptail --clear --title "$title" --menu "$text" "$height" "$width" "$menu_height" $@ 3>&1 1>&2 2>&3
+    fi
 }
 
-lib::tui::yesno() {
-  local msg="${1:-Confirmer ?}"; ${DIALOG_CMD} --yesno "${msg}" 10 60 2>/dev/null; return $?
+tui_input() {
+    local title="$1" text="$2" default="${3:-}"
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        dialog --title "$title" --inputbox "$text" 8 60 "$default" 2>&1 >/dev/tty
+    else
+        whiptail --title "$title" --inputbox "$text" 8 60 "$default" 3>&1 1>&2 2>&3
+    fi
 }
 
-lib::tui::input() {
-  local prompt="${1:-Saisie:}" default="${2:-}" result
-  result=$(${DIALOG_CMD} --stdout --inputbox "${prompt}" 10 60 "${default}" 2>/dev/null) || return 1
-  echo -n "${result}"; return 0
+tui_password() {
+    local title="$1" text="$2"
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        dialog --title "$title" --passwordbox "$text" 8 60 2>&1 >/dev/tty
+    else
+        whiptail --title "$title" --passwordbox "$text" 8 60 3>&1 1>&2 2>&3
+    fi
 }
 
-lib::tui::password() {
-  local prompt="${1:-Mot de passe:}" result
-  result=$(${DIALOG_CMD} --stdout --passwordbox "${prompt}" 10 60 --insecure 2>/dev/null) || return 1
-  echo -n "${result}"; return 0
-}
-
-lib::tui::checklist() {
-  local title="${1:-}" prompt="${2:-}" height="${3:-20}" width="${4:-70}" height_list="${5:-10}"
-  shift 5
-  local result
-  result=$(${DIALOG_CMD} --stdout --checklist "${prompt}" "${height}" "${width}" "${height_list}" "$@" 2>/dev/null) || return 1
-  echo -n "${result}"; return 0
-}
-
-lib::tui::menu() {
-  local title="${1:-}" prompt="${2:-}" height="${3:-15}" width="${4:-60}" height_list="${5:-2}"
-  shift 5
-  local result
-  result=$(${DIALOG_CMD} --stdout --menu "${prompt}" "${height}" "${width}" "${height_list}" "$@" 2>/dev/null) || return 1
-  echo -n "${result}"; return 0
+tui_yesno() {
+    local text="$1"
+    if [[ "$TUI_CMD" == "dialog" ]]; then
+        dialog --yesno "$text" 8 60
+    else
+        whiptail --yesno "$text" 8 60
+    fi
+    return $?
 }
