@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Flake integrity check
+        run: nix flake check
+
+      - name: Format check (nixpkgs-fmt)
+        run: nix develop --command bash -c 'nixpkgs-fmt --check .'
+
+      - name: Shell lint (shellcheck)
+        run: nix develop --command bash -c 'shellcheck installer.sh lib/*.sh'

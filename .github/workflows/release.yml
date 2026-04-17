@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: nix flake check
+        run: nix flake check
+
+      - name: shellcheck
+        run: nix develop --command shellcheck installer.sh lib/*.sh
+
+      - name: nixpkgs-fmt --check
+        run: nix develop --command nixpkgs-fmt --check .
+
+  release:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout complet
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extraire version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Generer CHANGELOG automatique
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [[ -n "$PREV_TAG" ]]; then
+            COMMITS=$(git log "${PREV_TAG}"..HEAD --oneline --no-merges)
+          else
+            COMMITS=$(git log --oneline --no-merges)
+          fi
+          printf "## %s\n### Commits\n%s\n" "$VERSION" "$COMMITS" > /tmp/release_notes.md
+
+      - name: Creer archives
+        run: |
+          tar --exclude='.git' --exclude='flake.lock' -czf "nixos-tui-installer-advanced-${VERSION}.tar.gz" .
+          zip -r "nixos-tui-installer-advanced-${VERSION}.zip" . -x '*.git*' -x 'flake.lock'
+
+      - name: Calculer checksums
+        run: sha256sum *.tar.gz *.zip > "checksums-${VERSION}.txt"
+
+      - name: Publier via gh release create
+        run: |
+          if [[ "$VERSION" =~ -rc\.|-beta\. ]]; then
+            gh release create "$VERSION" \
+              --title "nixos-tui-installer-advanced $VERSION" \
+              --notes-file /tmp/release_notes.md \
+              --prerelease \
+              *.tar.gz *.zip "checksums-${VERSION}.txt"
+          else
+            gh release create "$VERSION" \
+              --title "nixos-tui-installer-advanced $VERSION" \
+              --notes-file /tmp/release_notes.md \
+              --latest \
+              *.tar.gz *.zip "checksums-${VERSION}.txt"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
