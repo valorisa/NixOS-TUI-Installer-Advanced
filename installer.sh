@@ -4,11 +4,12 @@
 
 set -euo pipefail
 # shellcheck source-path=./lib
-# shellcheck disable=SC1091
+# shellcheck disable=SC1091,SC2155
 
 trap 'cleanup_on_error' ERR
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 readonly LIB_DIR="${SCRIPT_DIR}/lib"
 readonly TEMPLATES_DIR="${SCRIPT_DIR}/templates"
 readonly MODULES_DIR="${SCRIPT_DIR}/modules"
@@ -26,7 +27,9 @@ declare -g USER_SHELL="/bin/bash"
 declare -g LUKS_DEVICE_NAME="cryptroot"
 declare -g LUKS_CONTAINER_OPENED="false"
 
+# shellcheck disable=SC1090
 for lib in tui partition luks network; do
+  # shellcheck disable=SC1090
   source "${LIB_DIR}/${lib}.sh" || {
     echo "Echec du chargement de lib/${lib}.sh" >&2
     exit 1

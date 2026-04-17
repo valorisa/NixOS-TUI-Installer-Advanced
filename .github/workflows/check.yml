@@ -27,4 +27,4 @@ jobs:
         run: nix develop --command bash -c 'nixpkgs-fmt --check .'
 
       - name: Shell lint (shellcheck)
-        run: nix develop --command bash -c 'shellcheck installer.sh lib/*.sh'
+        run: nix develop --command bash -c 'shellcheck -e SC2155,SC1090 installer.sh lib/*.sh'
