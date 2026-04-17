@@ -6,44 +6,159 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Boot: UEFI Only](https://img.shields.io/badge/Boot-UEFI%20Only-orange)](https://en.wikipedia.org/wiki/UEFI)
 
-Installeur NixOS interactif TUI ciblant les utilisateurs Linux avances.
-Base sur `dialog`, `disko` (partitionnement declaratif), `LUKS2/argon2id` et configuration reseau runtime.
+## Presentation
 
-## Prerequis
-- Live ISO NixOS **24.11+** (minimal ou graphical)
-- Firmware **UEFI** active (MBR/CSM non supporte)
-- Disque cible **>= 20 Go**
-- Connexion Internet fonctionnelle
+**nixos-tui-installer-advanced** est un installeur NixOS interactif en mode texte (TUI) destine aux utilisateurs Linux avances qui souhaitent deployer NixOS 24.11 de maniere automatisee mais controlee. Cet outil offre une interface utilisateur graphique en ligne de commande basee sur `dialog` pour guider l'utilisateur a travers les etapes critiques de l'installation.
 
-## Installation
+Cet installeur est particulierement utile pour :
+- Les utilisateurs souhaitants un partitionnement declaratif et reproductible via `disko`
+- ceux qui souhaitent chiffrer leur systeme avec LUKS2 et argon2id
+- Les environnements serveur ou desktop avec configuration reseau personnalisee
 
-### Via Git Clone
+## Fonctionnalites principales
+
+### Partitionnement declaratif avec disko
+
+L'installeur utilise **disko** (du projet nix-community) pour declarer la structure des partitions de maniere idempotente. Cela signifie que la meme configuration peut etre appliquee plusieurs fois avec le meme resultat, ce qui est essentielle pour la reproductibilite et l'automatisation.
+
+Deux schemas de partitionnement sont disponibles :
+- **disko-luks.nix** : GPT + EFI + LUKS2 + LVM (swap + root) — pour les utilisateurs desirant le chiffrement
+- **disko-simple.nix** : GPT + EFI + swap + root — pour une installation simple sans chiffrement
+
+### Chiffrement LUKS2 avec argon2id
+
+Pour les utilisateurs soucieux de la securite de leurs donnees, l'installeur propose le chiffrement complet du disque avec LUKS2 (Linux Unified Key Setup). L'algorithme de derivation de cle **argon2id** est utilise, qui offre une resistance superieure aux attaques par force brute (GPU/ASIC) avec un temps d'iteration configure a 3000ms.
+
+### Configuration reseau flexible
+
+L'installeur permet de configurer le reseau selon l'usage prevu :
+- **NetworkManager** : Recommande pour les postes de travail desktop avec interface graphique
+- **systemd-networkd** : Approprie pour les serveurs et environnements headless
+
+### Interface TUI universelle
+
+L'interface utilisateur est basee sur `dialog` (ou `whiptail` en fallback), des outils disponibles dans nixpkgs et inclus dans les ISO live NixOS. Cela assure une compatibilite maximale sans dependances externes supplementaires.
+
+### Securite operationnelle
+
+Le script implement-plusieurs niveaux de protection :
+- Execution en mode strict Bash (`set -euo pipefail`) pour arreter des la premiere erreur
+- Trap sur ERR pour nettoyer automatiquement en cas d'echec
+- Confirmation explicite avant toute operation d'ecriture sur disque
+- Rollback automatique (demonte / ferme LUKS) en cas d'erreur
+
+## Architecture du projet
+
+La structure du projet suit les conventions Nix flakes :
+
+```
+nixos-tui-installer-advanced/
+├── flake.nix                  # Definition du flake avec dependances
+├── installer.sh               # Script principal d'installation
+├── lib/                    # Bibliotheques de fonctions
+│   ├── tui.sh              # Fonctions d'interface TUI
+│   ├── partition.sh         # Wrapper disko
+│   ├── luks.sh            # Configuration LUKS2
+│   └── network.sh         # Configuration reseau
+├── templates/               # Templates disko
+│   ├── disko-luks.nix
+│   └── disko-simple.nix
+├── modules/                 # Modules NixOS
+│   └── base.nix            # Configuration post-install
+├── scripts/                # Utilitaires
+│   └── prepare-release.sh
+├── .github/workflows/       # CI/CD GitHub Actions
+│   ├── check.yml
+│   └── release.yml
+├── docs/
+│   └── ARCHITECTURE.md
+└── README.md
+```
+
+## Prerequisites
+
+Pour utiliser cet installeur, vous devez disposer de :
+
+1. **Live ISO NixOS 24.11** (minimal ou graphical) telechargeable depuis https://nixos.org/download.html
+2. **Firmware UEFI active** — Le BIOS classique (MBR/CSM) n'est pas supporte
+3. **Disque cible d'au moins 20 Go** — Pour le systeme et l'espace de swap
+4. **Connexion Internet fonctionnelle** — Necessaire pour telecharger les paquets NixOS
+
+## Guide d'installation
+
+### Methode 1 : Via Git Clone (recommandee)
+
+Cette methode est recommandee pour les utilisateurs souhaitant la derniere version de developpement :
+
 ```bash
+# Clonez le depot
 git clone https://github.com/valorisa/nixos-tui-installer-advanced
 cd nixos-tui-installer-advanced
-bash installer.sh
+
+# Lancez l'installeur (necessite les privileges root)
+sudo bash installer.sh
 ```
 
-### Via Release Archive
+### Methode 2 : Via Archive de release
+
+Pour une installation hors-ligne ou avec une version specifique :
+
 ```bash
+# Telechargez la derniere release
 curl -L https://github.com/valorisa/nixos-tui-installer-advanced/releases/latest/download/nixos-tui-installer-advanced-vVERSION.tar.gz | tar xz
 cd nixos-tui-installer-advanced-*/
-bash installer.sh
+
+# Lancez l'installeur
+sudo bash installer.sh
 ```
 
-## Features
-- **Chiffrement moderne** : LUKS2 + argon2id + LVM on LUKS (optionnel)
-- **Partitionnement declaratif** : `disko` reproductible et idempotent
-- **Reseau runtime** : NetworkManager (desktop) ou systemd-networkd (serveur)
-- **TUI universel** : `dialog` avec fallback `whiptail`, zero dependance externe lourde
-- **Securite stricte** : `set -euo pipefail`, `trap ERR` pour rollback propre
+### Deroulement de l'installation
 
-## Architecture
-Le flux et la structure du projet sont detailles dans :
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+L'installeur guide l'utilisateur a travers les etapes suivantes :
 
-## Releases & Versioning
-Convention Semantic Versioning (SemVer) appliquee aux tags Git :
+1. **Verification pre-vol** — Verifie la presence d'UEFI, des privileges root, et de la connexion internet
+2. **Selection du disque** — Permet de choisir le disque cibleparmi les peripheriques disponibles
+3. **Configuration du chiffrement** — Propose LUKS2 avec argon2id (optionnel)
+4. **Selection du bootloader** — Choit entre systemd-boot et grub-efi
+5. **Configuration reseau** — Configure NetworkManager ou networkd
+6. **Creation des utilisateurs** — Definit hostname, utilisateur principal, et mots de passe
+7. **Recapitulatif et confirmation** — Affiche un resume et demande confirmation explicite
+8. **Execution de l'installation** — Applique le partitionnement et installe NixOS
+9. **Redemarrage** — Propose de redemarrer ou de quitter
+
+## Configuration apres installation
+
+Apres l'installation, le fichier de configuration NixOS est disponible dans `/etc/nixos/configuration.nix`. Il contient toutes les selections effectues pendant l'installation et peut etre modifies pour des ajustements ulterieurs.
+
+Pour reconstruire le systeme avec les nouvelles options :
+
+```bash
+sudo nixos-rebuild switch --upgrade
+```
+
+## Contribution
+
+Les contributions sont-les bienvenues ! Pour participer au developpement :
+
+1. Clonez le depot et entrez dans le shell de developpement :
+   ```bash
+   git clone https://github.com/valorisa/nixos-tui-installer-advanced
+   cd nixos-tui-installer-advanced
+   nix develop
+   ```
+
+2. Verifiez la qualite du code :
+   ```bash
+   shellcheck installer.sh lib/*.sh
+   nixpkgs-fmt .
+   nix flake check
+   ```
+
+3. Creez une branche et soumettez une Pull Request
+
+## Modele de publication
+
+Le projet suit le schema de Semantic Versioning (SemVer) pour les versions :
 
 | Format de tag | Signification | Exemple |
 |---------------|--------------|---------|
@@ -51,19 +166,27 @@ Convention Semantic Versioning (SemVer) appliquee aux tags Git :
 | `vX.Y.Z-rc.N` | Release candidate | `v1.2.0-rc.1` |
 | `vX.Y.Z-beta.N` | Beta publique | `v1.2.0-beta.2` |
 
-Les assets `.tar.gz`, `.zip` et `checksums.txt` sont generation automatiquement par le workflow `release.yml`.
+Chaque publication generee automatiquement :
+- Archive `.tar.gz` et `.zip`
+- Fichier de checksums SHA256
+- Notes de version basees sur les commits
 
-## Contributing
-1. Clonez le repo et entrez dans le shell de developpement :
-   ```bash
-   nix develop
-   ```
-2. Verifiez la qualite du code :
-   ```bash
-   shellcheck installer.sh lib/*.sh
-   nixpkgs-fmt .
-   nix flake check
-   ```
-3. Soumettez une Pull Request avec une description claire des changements.
+## Documentation technique
 
-> **Avertissement** : Cet outil modifie des tables de partitions et formate des disques. Verifiez toujours le disque cible dans l'etape de recapitulatif avant confirmation.
+Pour les details techniques complets, consultez :
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — Architecture et decisions de conception
+- [NixOS Manual](https://nixos.org/manual/nixos/stable/) — Documentation officielle NixOS
+- [disko Documentation](https://github.com/nix-community/disko) — Partitionnement declaratif
+
+## Avertissement
+
+> **Important** : Cet outil modifie des tables de partitions et formate des disques. Une erreur de selection du disque cible peut entrainner une perte complete des donnees. Verifiez toujours le disque cible dans l'etape de recapitulatif avant de confirmer l'installation.
+
+## Licence
+
+Ce projet est distribue sous la licence MIT. Voir le fichier [LICENSE](LICENSE) pour les details.
+
+---
+
+**Auteur** : valorisa  
+**Version actuelle** : voir onglet Releases sur GitHub
