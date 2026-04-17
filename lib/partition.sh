@@ -10,13 +10,16 @@ lib::partition::apply() {
             --disk) disk="$2"; shift 2 ;;
             --luks) luks="$2"; shift 2 ;;
             --templates-dir) templates_dir="$2"; shift 2 ;;
-            *) shift ;; # On ignore les options non reconnues
+            *) shift ;;
         esac
     done
 
     [[ -z "${disk}" || -z "${templates_dir}" ]] && { echo "Erreur: --disk et --templates-dir requis" >&2; return 1; }
 
-    local template="${templates_dir}/disko-$([ "${luks}" = "true" ] && echo luks || echo simple).nix"
+    # Déclaration et assignation séparées pour shellcheck SC2155
+    local template
+    template="${templates_dir}/disko-$([ "${luks}" = "true" ] && echo luks || echo simple).nix"
+
     [[ ! -f "${template}" ]] && { echo "Erreur: Template introuvable: ${template}" >&2; return 1; }
 
     local work_template
