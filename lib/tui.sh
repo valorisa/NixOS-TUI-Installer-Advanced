@@ -37,9 +37,8 @@ tui_error() {
 tui_menu() {
     local title="${1:-}" text="${2:-}" height="${3:-15}" width="${4:-60}" menu_height="${5:-5}"
     shift 5
-    # Les arguments restants sont les paires tag/item
     if [[ "$TUI_CMD" == "dialog" ]]; then
-        # shellcheck disable=SC2068 # On veut que les arguments soient découpés
+        # shellcheck disable=SC2069,SC2068
         dialog --clear --title "$title" --menu "$text" "$height" "$width" "$menu_height" $@ 2>&1 >/dev/tty
     else
         # shellcheck disable=SC2068
@@ -50,6 +49,7 @@ tui_menu() {
 tui_input() {
     local title="$1" text="$2" default="${3:-}"
     if [[ "$TUI_CMD" == "dialog" ]]; then
+        # shellcheck disable=SC2069
         dialog --title "$title" --inputbox "$text" 8 60 "$default" 2>&1 >/dev/tty
     else
         whiptail --title "$title" --inputbox "$text" 8 60 "$default" 3>&1 1>&2 2>&3
@@ -59,6 +59,7 @@ tui_input() {
 tui_password() {
     local title="$1" text="$2"
     if [[ "$TUI_CMD" == "dialog" ]]; then
+        # shellcheck disable=SC2069
         dialog --title "$title" --passwordbox "$text" 8 60 2>&1 >/dev/tty
     else
         whiptail --title "$title" --passwordbox "$text" 8 60 3>&1 1>&2 2>&3
