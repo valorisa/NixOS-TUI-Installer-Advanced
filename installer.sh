@@ -36,6 +36,12 @@ for lib in tui partition luks network; do
   }
 done
 
+tui_info() { lib::tui::info "$@"; }
+tui_error() { lib::tui::error "$@"; }
+tui_yesno() { lib::tui::yesno "$@"; return $?; }
+tui_input() { lib::tui::input "$@"; }
+tui_password() { lib::tui::password "$@"; }
+
 cleanup_on_error() {
   local exit_code=$?
   tui_error "Une erreur est survenue (code: ${exit_code}). Nettoyage en cours..."
@@ -113,7 +119,7 @@ step_select_encryption() {
 
   if tui_yesno "Activer le chiffrement LUKS2 (argon2id) sur la partition root ?" ; then
     ENABLE_LUKS="true"
-    tui_info "Chiffrement LUKS2 active."
+    tui_info "Chiffrement LUKS2 active (disko demandera le mot de passe)."
   else
     ENABLE_LUKS="false"
     tui_info "Installation non chiffree (disko-simple)."
@@ -227,23 +233,24 @@ step_execute_install() {
 
   nixos-generate-config --root /mnt
 
-  local base_config="${MODULES_DIR}/base.nix"
-  if [[ ! -f "${base_config}" ]]; then
-    tui_error "Module de base introuvable : ${base_config}"
+  local base_config_src="${MODULES_DIR}/base.nix"
+  local base_config_dst="/mnt/etc/nixos/configuration.nix"
+  if [[ ! -f "${base_config_src}" ]]; then
+    tui_error "Module de base introuvable : ${base_config_src}"
     return 1
   fi
 
-  sed -i "s|{{HOSTNAME}}|${HOSTNAME}|g" "${base_config}"
-  sed -i "s|{{USERNAME}}|${USERNAME}|g" "${base_config}"
-  sed -i "s|{{ROOT_PASSWORD_HASH}}|${ROOT_PASSWORD//\$/\\$}|g" "${base_config}"
-  sed -i "s|{{USER_PASSWORD_HASH}}|${USER_PASSWORD//\$/\\$}|g" "${base_config}"
-  sed -i "s|{{BOOTLOADER}}|${BOOTLOADER}|g" "${base_config}"
-  sed -i "s|{{NETWORK_MODE}}|${NETWORK_MODE}|g" "${base_config}"
-  sed -i "s|{{LUKS_ENABLED}}|${ENABLE_LUKS}|g" "${base_config}"
+  cp "${base_config_src}" "${base_config_dst}"
 
-  cat "${base_config}" >> /mnt/etc/nixos/configuration.nix
+  sed -i "s|{{HOSTNAME}}|${HOSTNAME}|g" "${base_config_dst}"
+  sed -i "s|{{USERNAME}}|${USERNAME}|g" "${base_config_dst}"
+  sed -i "s|{{ROOT_PASSWORD_HASH}}|${ROOT_PASSWORD}|g" "${base_config_dst}"
+  sed -i "s|{{USER_PASSWORD_HASH}}|${USER_PASSWORD}|g" "${base_config_dst}"
+  sed -i "s|{{BOOTLOADER}}|${BOOTLOADER}|g" "${base_config_dst}"
+  sed -i "s|{{NETWORK_MODE}}|${NETWORK_MODE}|g" "${base_config_dst}"
+  sed -i "s|{{LUKS_ENABLED}}|${ENABLE_LUKS}|g" "${base_config_dst}"
 
-  if ! nixos-install --root /mnt --no-channel-copy --option substituters "https://cache.nixos.org" --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="; then
+  if ! nixos-install --root /mnt --no-channel-copy; then
     tui_error "Echec de nixos-install."
     return 1
   fi

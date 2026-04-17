@@ -19,6 +19,7 @@
             };
             crypt = {
               size = "100%";
+              label = "disko_luks";
               content = {
                 type = "luks";
                 name = "cryptroot";

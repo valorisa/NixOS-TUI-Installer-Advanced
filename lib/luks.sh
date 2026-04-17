@@ -16,7 +16,7 @@ lib::luks::setup() {
     echo "Erreur: cryptsetup luksFormat echoue" >&2; return 1
   fi
 
-  if ! echo -n "${passphrase}" | cryptsetup luksOpen "${disk}" "${device_name}"; then
+  if ! echo -n "${passphrase}" | cryptsetup open --type luks --key-file - "${disk}" "${device_name}"; then
     echo "Erreur: cryptsetup luksOpen echoue" >&2; return 1
   fi
 

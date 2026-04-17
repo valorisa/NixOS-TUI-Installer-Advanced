@@ -37,3 +37,19 @@ lib::tui::password() {
   result=$(${DIALOG_CMD} --stdout --passwordbox "${prompt}" 10 60 --insecure 2>/dev/null) || return 1
   echo -n "${result}"; return 0
 }
+
+lib::tui::checklist() {
+  local title="${1:-}" prompt="${2:-}" height="${3:-20}" width="${4:-70}" height_list="${5:-10}"
+  shift 5
+  local result
+  result=$(${DIALOG_CMD} --stdout --checklist "${prompt}" "${height}" "${width}" "${height_list}" "$@" 2>/dev/null) || return 1
+  echo -n "${result}"; return 0
+}
+
+lib::tui::menu() {
+  local title="${1:-}" prompt="${2:-}" height="${3:-15}" width="${4:-60}" height_list="${5:-2}"
+  shift 5
+  local result
+  result=$(${DIALOG_CMD} --stdout --menu "${prompt}" "${height}" "${width}" "${height_list}" "$@" 2>/dev/null) || return 1
+  echo -n "${result}"; return 0
+}
