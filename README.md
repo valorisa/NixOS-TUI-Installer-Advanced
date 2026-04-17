@@ -10,7 +10,7 @@
 
 ## Présentation du projet
 
-**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) conçu pour les utilisateurs Linux expérimentés qui souhaitent déployer **NixOS 24.11** de manière automatisée mais parfaitement contrôlée. Contrairement à l'installeur graphique officiel, cet outil offre une interface en ligne de commande élégante et sécurisée pour guider l'utilisateur à travers toutes les étapes critiques de l'installation.
+**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) conçu pour les utilisateurs Linux expérimentés qui souhaitent déployer **NixOS 25.11** de manière automatisée mais parfaitement contrôlée. Contrairement à l'installeur graphique officiel, cet outil offre une interface en ligne de commande élégante et sécurisée pour guider l'utilisateur à travers toutes les étapes critiques de l'installation.
 
 ### Pourquoi utiliser cet installateur ?
 
