@@ -10,15 +10,15 @@
 
 ## Presentation du projet
 
-**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) conccu pour les utilisateurs Linux experimentces qui souhaitent dceployer **NixOS 24.11** de manicere automatiscee mais parfaitement contrcclcee. Contrairement cu l'installeur graphique officiel, cet outil offre une interface en ligne de commande celcegante et scecuriscee pour guider l'utilisateur cu travers toutes les cetapes critiques de l'installation.
+**NixOS TUI Installer Advanced** est un installeur interactif en mode texte (TUI - Text User Interface) conçu pour les utilisateurs Linux experimentés qui souhaitent déployer **NixOS 24.11** de manière automatisée mais parfaitement contrôlée. Contrairement à l'installeur graphique officiel, cet outil offre une interface en ligne de commande élégante et sécurisée pour guider l'utilisateur à travers toutes les étapes critiques de l'installation.
 
 ### Pourquoi utiliser cet installeur ?
 
 L'installeur officiel NixOS, bien qu'excellent, peut sembler complexe pour les utilisateurs souhaitant :
-- **Un partitionnement dceclaratif et reproductible** via `disko` - Plus besoin de manuellement crceer des partitions avec `fdisk` ou `parted`
-- **Un chiffrement moderne** avec LUKS2 et argon2id - Protcegez vos donncees avec un standard industriel
-- **Une configuration rceseau personnalisable** - Choix entre NetworkManager (desktop) ou systemd-networkd (serveur)
-- **Une totale transparence** - Le script cetant ouvert, vous pouvez vcerifiez chaque opceration effectucee
+- **Un partitionnement déclaratif et reproductible** via `disko` - Plus besoin de manuellement créer des partitions avec `fdisk` ou `parted`
+- **Un chiffrement moderne** avec LUKS2 et argon2id - Protégez vos données avec un standard industriel
+- **Une configuration réseau personnalisable** - Choix entre NetworkManager (desktop) ou systemd-networkd (serveur)
+- **Une totale transparence** - Le script étant ouvert, vous pouvez vérifiez chaque opération effectuée
 
 ---
 
@@ -278,7 +278,7 @@ Question : "Activer le chiffrement LUKS2 (argon2id) ?"
 - **Oui** : Le disque systeme sera chiffre avec LUKS2
 - **Non** : Installation sans chiffrement (schema simple)
 
-Si vous activez le chiffrement, vous devrez definir une passphrase. Celle-ci sera demandcee deux fois pour confirmation.
+Si vous activez le chiffrement, vous devrez definir une passphrase. Celle-ci sera demandée deux fois pour confirmation.
 
 #### Etape 4 : Selection du bootloader
 
